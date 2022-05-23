@@ -20,40 +20,30 @@ namespace WebAPINorthwind.Controllers
         {
             _context = context;
         }
-        /*
+        
         // GET: api/Products/GetTop5Quantity
         [HttpGet]
         [Route("Top5ByQuantity")]
         public IEnumerable<object> GetTop5Quantity()
         {
-            return  _context.Movement
-                .Where()
-                .Join(_context.Movementdetails,
-                p => p.ProductId,
-                md => md.ProductId
-                (p, md) => new
-                {
-                    Productos = p.ProductName,
-                    Cantidad = md.Quantity
-                })
-                .Join(_context.Movements,
-                m => m.MovementId,
-                md => md.MovementId,
-                (m, md) => new
-                {
-                    fecha = m.Date,
-                })
-                .Where(m => m.fecha.Year == 1996)
-                .GroupBy(p => p.Productos)
-                .Select(p => new
-                {
-                    Producto = p.Key,
-                    Cantidad = p.Quantity,
-                    Trimestre = (p.fecha.Month - 1) / 3
 
+            var resultado = (
+
+                from p in _context.Products
+                from md in _context.Movementdetails
+                from m in _context.Movements
+                where p.ProductId == md.ProductId
+                where m.MovementId == md.MovementId &&
+                m.Date.Year == 1996
+                select new
+                {
+                    Producto = p.ProductName, 
+                    Cantidad = md.Quantity,
+                    Trimestre = (m.Date.Month - 1)/ 3,
                 })
                 .OrderByDescending(p => p.Cantidad)
                 .Take(5);
+            return resultado;            
         }
         
         // GET: api/Products/GetTop5Month
@@ -61,37 +51,25 @@ namespace WebAPINorthwind.Controllers
         [Route("Top5ByMonth")]
         public IEnumerable<object> GetTop5Month()
         {
-            return _context.Products
-                .Where(p => p.ProductId == p.ProductId)
-                .Join(_context.Movementdetails,
-                p => p.ProductId,
-                md => md.ProductId
-                (p, md) => new
-                {
-                    Productos = p.ProductName,
-                    Precio = p.UnitPrice,
-                    Cantidad = md.Quantity
-                })
-                .Join(_context.Movements,
-                m => m.MovementId,
-                md => md.MovementId,
-                (m, md) => new
-                {
-                    fecha = m.Date,
-                })
-                .Where(m => m.fecha.Year == 1997)
-                .GroupBy(p => p.Productos)
-                .Select(p => new
-                {
-                    Productos = p.Key,
-                    Precio = p.UnitPrice,
-                    Cantidad = p.Quantity,
-                    Mes = p.fecha.Month == 06
+            var resultado = (
 
+                from p in _context.Products
+                from md in _context.Movementdetails
+                from m in _context.Movements
+                where p.ProductId == md.ProductId
+                where m.MovementId == md.MovementId &&
+                m.Date.Year == 1997 && m.Date.Month == 06
+                select new
+                {
+                    Producto = p.ProductName,
+                    UnidadPrecio = p.UnitPrice,
+                    Cantidad = md.Quantity,
+                    MesJunio = m.Date,
                 })
-                .OrderByDescending(p => p.Cantidad)
+                .OrderByDescending(md => md.Cantidad)
                 .Take(10);
-        }*/
+            return resultado;
+        }
         // GET: api/Products/Top5ByWareHouse
         [HttpGet]
         [Route("Top5ByWareHouse")]
@@ -120,34 +98,24 @@ namespace WebAPINorthwind.Controllers
         [Route("Top5ByWareHouseasc")]
         public IEnumerable<object> GetTop5WareHouseasc()
         {
-            return _context.Products
-                .Where(w => w.CompanyId == 1)
-                .Join(_context.Warehouseproducts,
-                p => p.ProductId,
-                wp => wp.ProductId,
-                (p, wp) => new
-                {
-                    producto = p.ProductName,
-                    Unidad_Stock = wp.UnitsInStock,
-                    wp.WarehouseId,
-                    Precio = p.UnitPrice,
-                })
-                .Join(_context.Warehouses,
-                w => w.WarehouseId,
-                wp => wp.WarehouseId,
-                (w, wp) => new
-                {
 
-                    Descripcion = w.Description,
-                })
-                .Select(w => new
+            var resultado = (
+                from p in _context.Products
+                from wp in _context.Warehouseproducts
+                from w in _context.Warehouses
+                where p.ProductId == wp.ProductId
+                where w.WarehouseId == wp.WarehouseId &&
+                w.CompanyId == 1
+                select new
                 {
-                    Productos = w.producto,
-                    UnidadesStock = w.Unidad_Stock,
-                    Precio = w.Precio
+                    Producto = p.ProductName,
+                    Precio = p.UnitPrice,
+                    UnidadesStock = wp.UnitsInStock,
+                    Descripcion = w.Description
                 })
-                .OrderBy(w => w.UnidadesStock)
-                .Take(10);
+                .OrderByDescending(w => w.UnidadesStock)
+                .Take(15);
+            return resultado;
         }
 
         // GET: api/Products/5
