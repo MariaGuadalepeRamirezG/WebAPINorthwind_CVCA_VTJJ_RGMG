@@ -20,14 +20,14 @@ namespace WebAPINorthwind.Controllers
         {
             _context = context;
         }
-
+        /*
         // GET: api/Products/GetTop5Quantity
         [HttpGet]
         [Route("Top5ByQuantity")]
         public IEnumerable<object> GetTop5Quantity()
         {
-            return  _context.Products
-                .Where(p => p.ProductId == p.ProductId)
+            return  _context.Movement
+                .Where()
                 .Join(_context.Movementdetails,
                 p => p.ProductId,
                 md => md.ProductId
@@ -55,6 +55,7 @@ namespace WebAPINorthwind.Controllers
                 .OrderByDescending(p => p.Cantidad)
                 .Take(5);
         }
+        
         // GET: api/Products/GetTop5Month
         [HttpGet]
         [Route("Top5ByMonth")]
@@ -90,42 +91,63 @@ namespace WebAPINorthwind.Controllers
                 })
                 .OrderByDescending(p => p.Cantidad)
                 .Take(10);
-        }
-        // GET: api/Products/GetTop5Month
+        }*/
+        // GET: api/Products/Top5ByWareHouse
         [HttpGet]
         [Route("Top5ByWareHouse")]
         public IEnumerable<object> GetTop5WareHouse()
         {
             return _context.Products
-                .Where(p => p.ProductId == p.ProductId)
+                .Where(w => w.CompanyId == 1)
                 .Join(_context.Warehouseproducts,
                 p => p.ProductId,
-                wp => wp.ProductId
+                wp => wp.ProductId,
                 (p, wp) => new
                 {
-                    Productos = p.ProductName,
-                    UnidadesStock = wp.UnitsInStock
+                    producto = p.ProductName,
+                    Unidad_Stock = wp.UnitsInStock
+
+                })
+                .Select(w => new
+                {
+                    Productos = w.producto,
+                    UnidadesStock = w.Unidad_Stock,
+                })
+                .OrderByDescending(w => w.UnidadesStock)
+                .Take(15);
+        }
+        [HttpGet]
+        [Route("Top5ByWareHouseasc")]
+        public IEnumerable<object> GetTop5WareHouseasc()
+        {
+            return _context.Products
+                .Where(w => w.CompanyId == 1)
+                .Join(_context.Warehouseproducts,
+                p => p.ProductId,
+                wp => wp.ProductId,
+                (p, wp) => new
+                {
+                    producto = p.ProductName,
+                    Unidad_Stock = wp.UnitsInStock,
+                    wp.WarehouseId,
+                    Precio = p.UnitPrice,
                 })
                 .Join(_context.Warehouses,
                 w => w.WarehouseId,
                 wp => wp.WarehouseId,
                 (w, wp) => new
                 {
-                    Almacen = w.Description,
-                    NumAlmacen = w.WarehouseId
-                })
-                .Where(w => w.NAlmacen == 1 && w.NAlmacen == 3 && w.NAlmacen == 4)
-                .GroupBy(p => p.Productos)
-                .Select(p => new
-                {
-                    Productos = p.Key,
-                    UnidadesStock = p.UnitsInStock,
-                    Almacen = p.Description,
-                    NumAlmacen = p.NAlmacen == 1 && p.NAlmacen == 3 && p.NAlmacen == 4
 
+                    Descripcion = w.Description,
                 })
-                .OrderByDescending(p => p.UnitsInStock)
-                .Take(5);
+                .Select(w => new
+                {
+                    Productos = w.producto,
+                    UnidadesStock = w.Unidad_Stock,
+                    Precio = w.Precio
+                })
+                .OrderBy(w => w.UnidadesStock)
+                .Take(10);
         }
 
         // GET: api/Products/5
