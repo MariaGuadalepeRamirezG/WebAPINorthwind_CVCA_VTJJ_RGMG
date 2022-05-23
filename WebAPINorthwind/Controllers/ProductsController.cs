@@ -113,7 +113,7 @@ namespace WebAPINorthwind.Controllers
                     UnidadesStock = wp.UnitsInStock,
                     Descripcion = w.Description
                 })
-                .OrderByDescending(w => w.UnidadesStock)
+                .OrderBy(w => w.UnidadesStock)
                 .Take(15);
             return resultado;
         }
