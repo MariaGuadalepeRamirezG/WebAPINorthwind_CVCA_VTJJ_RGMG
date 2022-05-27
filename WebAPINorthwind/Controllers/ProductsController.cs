@@ -95,25 +95,24 @@ namespace WebAPINorthwind.Controllers
                 .Take(15);
         }
         [HttpGet]
-        [Route("Top5ByWareHouseasc")]
-        public IEnumerable<object> GetTop5WareHouseasc()
+        [Route("Top5ByWareHouseasc/{Description}")]
+        public IEnumerable<object> GetTop5WareHouseasc(string Description)
         {
 
             var resultado = (
                 from p in _context.Products
                 from wp in _context.Warehouseproducts
                 from w in _context.Warehouses
-                where p.ProductId == wp.ProductId
-                where w.WarehouseId == wp.WarehouseId &&
-                w.CompanyId == 1
+                where p.ProductId == wp.ProductId 
+                && w.WarehouseId == wp.WarehouseId
+                && w.CompanyId == 1 && w.Description == Description
                 select new
                 {
-                    Producto = p.ProductName,
-                    Precio = p.UnitPrice,
-                    UnidadesStock = wp.UnitsInStock,
-                    Descripcion = w.Description
+                    producto = p.ProductName,
+                    unidadesStock = wp.UnitsInStock,
+                    almacen = w.Description
                 })
-                .OrderBy(w => w.UnidadesStock)
+                .OrderBy(w => w.unidadesStock)
                 .Take(15);
             return resultado;
         }
